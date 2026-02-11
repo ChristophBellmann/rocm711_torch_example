@@ -1,0 +1,4 @@
+# Install *torch* strictly from the locally installed ROCm 7.11 wheel.
+# Dependencies (e.g. filelock) are allowed to come from PyPI.
+torch @ file:///opt/rocm/wheels/pytorch_rocm711/torch-2.11.0a0+git3b6829f-cp312-cp312-linux_x86_64.whl
+numpy
