@@ -9,7 +9,7 @@ This prevents accidentally downloading a different torch build from the internet
 ## Setup
 
 ```bash
-cd /media/christoph/some_space/rocm711_torch_example
+cd /media/christoph/some_space/Compute/rocm711_torch_example
 python3 -m venv .venv
 source .venv/bin/activate
 
