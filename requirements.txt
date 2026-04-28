@@ -1,4 +1,3 @@
 # Project-local Python dependencies only.
-# torch comes from the custom ROCm wheel via:
-#   ${THEROCK_ROOT}/validation/scripts/pytorch_rocm/install_pytorch_rocm_wheel_to_venv.sh
+# Install torch first with ./setup_rocm_venv.sh.
 numpy<2
