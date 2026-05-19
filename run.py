@@ -56,6 +56,14 @@ def _maybe_reexec_with_rocm_env() -> None:
         if libomp not in cur.split(":"):
             env["LD_PRELOAD"] = ":".join([libomp] + ([cur] if cur else []))
 
+    # Preload librocm_smi64 so libtorch_hip can resolve rsmi_init (HIP CLR
+    # therock-7.13 doesn't link libamdhip64 against rocm_smi).
+    rsmi = f"{rocm}/lib/librocm_smi64.so"
+    if os.path.exists(rsmi):
+        cur = env.get("LD_PRELOAD", "")
+        if rsmi not in cur.split(":"):
+            env["LD_PRELOAD"] = ":".join([rsmi] + ([cur] if cur else []))
+
     # Re-exec only if we actually changed something.
     if env.get("PATH") != os.environ.get("PATH") or env.get("LD_LIBRARY_PATH") != os.environ.get("LD_LIBRARY_PATH") or env.get("LD_PRELOAD") != os.environ.get("LD_PRELOAD"):
         env["ROCM711_EXAMPLE_REEXEC"] = "1"
