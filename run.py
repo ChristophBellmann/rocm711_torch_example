@@ -18,11 +18,8 @@ def _maybe_reexec_with_rocm_env() -> None:
     """
     Ensure ROCm runtime libs are discoverable for the process.
 
-    This example wheel can depend on OpenMP runtime symbols (e.g. __kmpc_*)
-    even when linked against libgomp; preloading libomp satisfies those.
-
-    LD_LIBRARY_PATH/LD_PRELOAD are only honored at process startup, so we
-    re-exec once if we need to add them.
+    LD_LIBRARY_PATH is only honored at process startup, so we re-exec once if
+    we need to add ROCm runtime library paths.
     """
     if os.environ.get("ROCM711_EXAMPLE_REEXEC", "") == "1":
         return
@@ -49,23 +46,8 @@ def _maybe_reexec_with_rocm_env() -> None:
     if not all(p in ld.split(":") for p in want_ld):
         env["LD_LIBRARY_PATH"] = ":".join(want_ld + ([ld] if ld else []))
 
-    # Preload libomp to satisfy __kmpc_* symbols if needed.
-    libomp = f"{rocm}/lib/llvm/lib/libomp.so"
-    if os.path.exists(libomp):
-        cur = env.get("LD_PRELOAD", "")
-        if libomp not in cur.split(":"):
-            env["LD_PRELOAD"] = ":".join([libomp] + ([cur] if cur else []))
-
-    # Preload librocm_smi64 so libtorch_hip can resolve rsmi_init (HIP CLR
-    # therock-7.13 doesn't link libamdhip64 against rocm_smi).
-    rsmi = f"{rocm}/lib/librocm_smi64.so"
-    if os.path.exists(rsmi):
-        cur = env.get("LD_PRELOAD", "")
-        if rsmi not in cur.split(":"):
-            env["LD_PRELOAD"] = ":".join([rsmi] + ([cur] if cur else []))
-
     # Re-exec only if we actually changed something.
-    if env.get("PATH") != os.environ.get("PATH") or env.get("LD_LIBRARY_PATH") != os.environ.get("LD_LIBRARY_PATH") or env.get("LD_PRELOAD") != os.environ.get("LD_PRELOAD"):
+    if env.get("PATH") != os.environ.get("PATH") or env.get("LD_LIBRARY_PATH") != os.environ.get("LD_LIBRARY_PATH"):
         env["ROCM711_EXAMPLE_REEXEC"] = "1"
         os.execvpe(sys.executable, [sys.executable, __file__] + sys.argv[1:], env)
 
